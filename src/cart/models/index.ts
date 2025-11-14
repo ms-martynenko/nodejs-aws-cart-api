@@ -1,3 +1,7 @@
+// Export TypeORM entities
+export { CartEntity, CartStatus } from './cart.entity';
+export { CartItemEntity } from './cart-item.entity';
+
 export enum CartStatuses {
   OPEN = 'OPEN',
   STATUS = 'STATUS',

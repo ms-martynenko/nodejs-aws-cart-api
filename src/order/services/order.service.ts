@@ -7,15 +7,15 @@ import { CreateOrderPayload, OrderStatus } from '../type';
 export class OrderService {
   private orders: Record<string, Order> = {};
 
-  getAll() {
+  async getAll(): Promise<Order[]> {
     return Object.values(this.orders);
   }
 
-  findById(orderId: string): Order {
+  async findById(orderId: string): Promise<Order> {
     return this.orders[orderId];
   }
 
-  create(data: CreateOrderPayload) {
+  async create(data: CreateOrderPayload): Promise<Order> {
     const id = randomUUID() as string;
     const order: Order = {
       id,

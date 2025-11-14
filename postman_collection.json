@@ -1,0 +1,1043 @@
+{
+  "info": {
+    "_postman_id": "99c863c0-f342-4760-bcfb-e556461f8057",
+    "name": "NestJS Cart API - Complete Collection",
+    "description": "Comprehensive API collection for NestJS Cart API covering all endpoints with proper tests, authentication flows, and error scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🏥 Health & System",
+      "item": [
+        {
+          "name": "Health Check (Root)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has OK status', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('statusCode', 200);",
+                  "    pm.expect(response).to.have.property('message', 'OK');",
+                  "});",
+                  "console.log('Health Check Response:', pm.response.json());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check (Ping)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has OK status', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('statusCode', 200);",
+                  "    pm.expect(response).to.have.property('message', 'OK');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ping",
+              "host": ["{{base_url}}"],
+              "path": ["ping"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register New User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Response contains userId', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('userId');",
+                  "    pm.expect(response.userId).to.be.a('string');",
+                  "});",
+                  "console.log('Registration Response:', pm.response.json());"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Generate unique username for each test run",
+                  "const timestamp = Date.now();",
+                  "pm.collectionVariables.set('test_username', `testuser_${timestamp}`);",
+                  "pm.collectionVariables.set('test_password', 'testpassword123');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{test_username}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Duplicate User (Error Case)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400 (Bad Request)', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Error message about duplicate user', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response.message).to.include('already exists');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{test_username}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User (Basic Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response contains access token', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('token_type', 'Basic');",
+                  "    pm.expect(response).to.have.property('access_token');",
+                  "    pm.expect(response.access_token).to.be.a('string');",
+                  "    ",
+                  "    // Store the token for future use",
+                  "    pm.collectionVariables.set('access_token', response.access_token);",
+                  "});",
+                  "console.log('Login Response:', pm.response.json());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{test_username}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Invalid User (Error Case)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401 (Unauthorized)', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nonexistent\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👤 User Profile",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response contains user information', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('user');",
+                  "    pm.expect(response.user).to.have.property('id');",
+                  "    pm.expect(response.user).to.have.property('name');",
+                  "    pm.expect(response.user.name).to.equal(pm.collectionVariables.get('test_username'));",
+                  "});",
+                  "console.log('Profile Response:', pm.response.json());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile Without Auth (Error Case)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401 (Unauthorized)', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🛒 Shopping Cart",
+      "item": [
+        {
+          "name": "Get Empty Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has cart structure', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('cart');",
+                  "    pm.expect(response.cart).to.have.property('id');",
+                  "    pm.expect(response.cart).to.have.property('items');",
+                  "    pm.expect(response.cart.items).to.be.an('array');",
+                  "    ",
+                  "    // Store cart ID for later use",
+                  "    pm.collectionVariables.set('cart_id', response.cart.id);",
+                  "});",
+                  "console.log('Cart Response:', pm.response.json());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add First Product to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Product added to cart successfully', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('cart');",
+                  "    pm.expect(response.cart).to.have.property('items');",
+                  "    pm.expect(response.cart.items).to.have.lengthOf.at.least(1);",
+                  "    ",
+                  "    const addedItem = response.cart.items.find(item => item.product.id === 'prod-001');",
+                  "    pm.expect(addedItem).to.not.be.undefined;",
+                  "    pm.expect(addedItem.count).to.equal(2);",
+                  "    pm.expect(addedItem.product.title).to.equal('Smartphone XYZ');",
+                  "    pm.expect(addedItem.product.price).to.equal(299.99);",
+                  "});",
+                  "console.log('Add Product Response:', pm.response.json());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"id\": \"prod-001\",\n    \"title\": \"Smartphone XYZ\",\n    \"description\": \"Latest smartphone with advanced features\",\n    \"price\": 299.99\n  },\n  \"count\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Second Product to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Second product added to cart', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.cart.items).to.have.lengthOf.at.least(2);",
+                  "    ",
+                  "    const addedItem = response.cart.items.find(item => item.product.id === 'prod-002');",
+                  "    pm.expect(addedItem).to.not.be.undefined;",
+                  "    pm.expect(addedItem.count).to.equal(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"id\": \"prod-002\",\n    \"title\": \"Wireless Headphones\",\n    \"description\": \"Premium noise-canceling headphones\",\n    \"price\": 149.99\n  },\n  \"count\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Existing Product Quantity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Product quantity updated', function () {",
+                  "    const response = pm.response.json();",
+                  "    const updatedItem = response.cart.items.find(item => item.product.id === 'prod-001');",
+                  "    pm.expect(updatedItem).to.not.be.undefined;",
+                  "    pm.expect(updatedItem.count).to.equal(3);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"id\": \"prod-001\",\n    \"title\": \"Smartphone XYZ\",\n    \"description\": \"Latest smartphone with advanced features\",\n    \"price\": 299.99\n  },\n  \"count\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cart with Items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Cart contains multiple items', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.cart.items).to.have.lengthOf.at.least(2);",
+                  "    ",
+                  "    // Verify first product",
+                  "    const firstProduct = response.cart.items.find(item => item.product.id === 'prod-001');",
+                  "    pm.expect(firstProduct.count).to.equal(3);",
+                  "    ",
+                  "    // Verify second product",
+                  "    const secondProduct = response.cart.items.find(item => item.product.id === 'prod-002');",
+                  "    pm.expect(secondProduct.count).to.equal(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cart Total",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has total and items structure', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('total');",
+                  "    pm.expect(response).to.have.property('items');",
+                  "    pm.expect(response.total).to.be.a('number');",
+                  "    pm.expect(response.items).to.be.an('array');",
+                  "    pm.expect(response.items).to.have.lengthOf.at.least(1);",
+                  "});",
+                  "console.log('Cart Total Response:', pm.response.json());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart/total",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart", "total"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Product from Cart (Set Count to 0)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Product removed from cart', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('cart');",
+                  "    const removedItem = response.cart.items.find(item => item.product.id === 'prod-002');",
+                  "    pm.expect(removedItem).to.be.undefined;",
+                  "    ",
+                  "    // Verify first product still exists",
+                  "    const remainingItem = response.cart.items.find(item => item.product.id === 'prod-001');",
+                  "    pm.expect(remainingItem).to.not.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"id\": \"prod-002\",\n    \"title\": \"Wireless Headphones\",\n    \"description\": \"Premium noise-canceling headphones\",\n    \"price\": 149.99\n  },\n  \"count\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Entire Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Cart is Empty After Clear",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Cart is empty after clearing', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.cart.items).to.have.lengthOf(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📦 Order Management",
+      "item": [
+        {
+          "name": "Add Products for Checkout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Product added for checkout', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.cart.items).to.have.lengthOf.at.least(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"id\": \"prod-checkout\",\n    \"title\": \"Gaming Laptop\",\n    \"description\": \"High-performance gaming laptop\",\n    \"price\": 899.99\n  },\n  \"count\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Checkout Cart (Create Order)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Order created successfully', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('order');",
+                  "    pm.expect(response.order).to.have.property('id');",
+                  "    pm.expect(response.order).to.have.property('userId');",
+                  "    pm.expect(response.order).to.have.property('items');",
+                  "    pm.expect(response.order).to.have.property('address');",
+                  "    pm.expect(response.order).to.have.property('statusHistory');",
+                  "    ",
+                  "    // Store order ID for later use",
+                  "    pm.collectionVariables.set('order_id', response.order.id);",
+                  "});",
+                  "console.log('Checkout Response:', pm.response.json());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-checkout\",\n      \"count\": 1\n    }\n  ],\n  \"address\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"address\": \"123 Main Street, Apt 4B, New York, NY 10001\",\n    \"comment\": \"Please ring doorbell twice. Delivery between 9 AM - 5 PM preferred.\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart/order",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart", "order"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Checkout Empty Cart (Error Case)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400 (Bad Request)', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Error message about empty cart', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property('message');",
+                  "    pm.expect(response.message).to.include('Cart is empty');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [],\n  \"address\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"address\": \"123 Main Street\",\n    \"comment\": \"Test order\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart/order",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart", "order"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Orders",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is an array of orders', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.be.an('array');",
+                  "    ",
+                  "    if (response.length > 0) {",
+                  "        pm.expect(response[0]).to.have.property('id');",
+                  "        pm.expect(response[0]).to.have.property('userId');",
+                  "        pm.expect(response[0]).to.have.property('items');",
+                  "        pm.expect(response[0]).to.have.property('statusHistory');",
+                  "        ",
+                  "        // Verify the order we just created exists",
+                  "        const createdOrder = response.find(order => order.id === pm.collectionVariables.get('order_id'));",
+                  "        pm.expect(createdOrder).to.not.be.undefined;",
+                  "    }",
+                  "});",
+                  "console.log('All Orders Response:', pm.response.json());"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart/order",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart", "order"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔒 Error Cases & Edge Cases",
+      "item": [
+        {
+          "name": "Access Cart Without Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401 (Unauthorized)', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Product with Invalid Data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// This might succeed depending on validation - adjust as needed",
+                  "pm.test('Response received', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 422]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"id\": \"\",\n    \"title\": \"\",\n    \"price\": \"invalid_price\"\n  },\n  \"count\": -1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/profile/cart",
+              "host": ["{{base_url}}"],
+              "path": ["api", "profile", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Access Non-existent Endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 (Not Found)', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/nonexistent",
+              "host": ["{{base_url}}"],
+              "path": ["api", "nonexistent"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set default variables if not already set",
+          "if (!pm.collectionVariables.get('base_url')) {",
+          "    pm.collectionVariables.set('base_url', 'http://localhost:3000');",
+          "}",
+          "",
+          "// Log current request info",
+          "console.log('Making request to:', pm.request.url.toString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test to log response time",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// Log response details for debugging",
+          "console.log('Response Time:', pm.response.responseTime + 'ms');",
+          "console.log('Response Status:', pm.response.status);"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "test_username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cart_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{test_username}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{test_password}}",
+        "type": "string"
+      }
+    ]
+  }
+}
