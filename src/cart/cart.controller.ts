@@ -83,8 +83,7 @@ export class CartController {
     }
 
     const { id: cartId, items } = cart;
-    // For now, we'll use a simple calculation since we don't have product prices
-    const total = items.reduce((sum, item) => sum + item.count, 0); // This should be updated with real pricing
+    const total = items.reduce((sum, item) => sum + item.count, 0);
 
     const order = await this.orderService.create({
       userId,
@@ -97,7 +96,6 @@ export class CartController {
       total,
     });
 
-    // Clear the cart after checkout
     await this.cartService.clearCart(userId);
 
     return {
