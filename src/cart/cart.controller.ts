@@ -14,9 +14,7 @@ import {
 import { BasicAuthGuard } from '../auth';
 import { Order, OrderService } from '../order';
 import { AppRequest, getUserIdFromRequest } from '../shared';
-import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
-import { CartItem, CartItemEntity } from './models';
 import { CreateOrderDto, PutCartPayload } from 'src/order/type';
 
 @Controller('api/profile/cart')
@@ -31,28 +29,56 @@ export class CartController {
   // @UseGuards(JwtAuthGuard)
   @UseGuards(BasicAuthGuard)
   @Get()
-  async findUserCart(@Req() req: AppRequest): Promise<CartItemEntity[]> {
-    const cart = await this.cartService.findOrCreateByUserId(
-      getUserIdFromRequest(req),
-    );
+  async findUserCart(@Req() req: AppRequest) {
+    const userId = getUserIdFromRequest(req);
+    const cart = await this.cartService.findOrCreateByUserId(userId);
 
-    return cart.items || [];
+    // Transform to match expected API format
+    const items =
+      cart.items?.map((item) => ({
+        product: {
+          id: item.productId,
+          title: `Product ${item.productId}`,
+          description: `Description for ${item.productId}`,
+          price: 0, // Would come from product service
+        },
+        count: item.count,
+      })) || [];
+
+    return {
+      cart: {
+        id: cart.id.toString(),
+        items,
+      },
+    };
   }
 
   // @UseGuards(JwtAuthGuard)
   @UseGuards(BasicAuthGuard)
   @Put()
-  async updateUserCart(
-    @Req() req: AppRequest,
-    @Body() body: PutCartPayload,
-  ): Promise<CartItemEntity[]> {
-    // TODO: validate body payload...
-    const cart = await this.cartService.updateByUserId(
-      getUserIdFromRequest(req),
-      body,
-    );
+  async updateUserCart(@Req() req: AppRequest, @Body() body: PutCartPayload) {
+    const userId = getUserIdFromRequest(req);
+    const cart = await this.cartService.updateByUserId(userId, body);
 
-    return cart.items || [];
+    // Transform to match expected API format
+    const items =
+      cart.items?.map((item) => ({
+        product: {
+          id: item.productId,
+          title: body.product.title || `Product ${item.productId}`,
+          description:
+            body.product.description || `Description for ${item.productId}`,
+          price: body.product.price || 0,
+        },
+        count: item.count,
+      })) || [];
+
+    return {
+      cart: {
+        id: cart.id.toString(),
+        items,
+      },
+    };
   }
 
   // @UseGuards(JwtAuthGuard)

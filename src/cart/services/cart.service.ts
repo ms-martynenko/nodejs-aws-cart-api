@@ -24,7 +24,6 @@ export class CartService {
     const cart = this.cartRepository.create({
       userId,
       status: CartStatus.OPEN,
-      items: [],
     });
 
     return await this.cartRepository.save(cart);
@@ -91,15 +90,26 @@ export class CartService {
       return { total: 0, items: [] };
     }
 
-    // For now, we don't have product prices in the database
-    // This would need to be integrated with a product service
+    // Transform items to include product details from the payload
     const items = cart.items.map((item) => ({
-      productId: item.productId,
+      product: {
+        id: item.productId,
+        // These would come from a product service in a real application
+        title: `Product ${item.productId}`,
+        description: `Description for ${item.productId}`,
+        price: 0, // Would need product service integration
+      },
       count: item.count,
     }));
 
+    // Calculate total (would need actual product prices)
+    const total = items.reduce(
+      (sum, item) => sum + item.product.price * item.count,
+      0,
+    );
+
     return {
-      total: 0, // Would need product service integration
+      total,
       items,
     };
   }
@@ -108,7 +118,9 @@ export class CartService {
     const cart = await this.findByUserId(userId);
     if (cart) {
       // Remove all items
-      await this.cartItemRepository.remove(cart.items);
+      if (cart.items && cart.items.length > 0) {
+        await this.cartItemRepository.remove(cart.items);
+      }
       // Update cart status
       cart.status = CartStatus.ORDERED;
       await this.cartRepository.save(cart);

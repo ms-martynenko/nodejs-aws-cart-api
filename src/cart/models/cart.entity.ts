@@ -23,7 +23,6 @@ export class CartEntity {
 
   @OneToMany(() => CartItemEntity, (item) => item.cart, {
     cascade: true,
-    eager: true,
   })
   items: CartItemEntity[];
 
@@ -38,6 +37,7 @@ export class CartEntity {
     name: 'updated_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
 }
